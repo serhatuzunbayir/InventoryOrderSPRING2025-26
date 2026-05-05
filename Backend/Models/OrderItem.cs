@@ -11,4 +11,5 @@ public class OrderItem
 
     public Order Order { get; set; } = null!;
     public Item Item { get; set; } = null!;
+    public string ItemName => Item.Name;
 }

@@ -10,7 +10,7 @@ public class ReportsService(AppDbContext db)
     {
         // Get all non-cancelled orders with their items
         var orders = await db.Orders
-            .Where(o => o.Status != "Cancelled")
+            .Where(o => o.Status == "Delivered")
             .Include(o => o.OrderItems)
             .ToListAsync();
 
@@ -21,7 +21,7 @@ public class ReportsService(AppDbContext db)
 
         // Top selling items: group by item name, sum quantities
         var topSellingItems = await db.OrderItems
-            .Where(oi => db.Orders.Any(o => o.Id == oi.OrderId && o.Status != "Cancelled"))
+            .Where(oi => db.Orders.Any(o => o.Id == oi.OrderId && o.Status == "Delivered"))
             .GroupBy(oi => oi.Item.Name)
             .Select(g => new TopSellingItem
             {

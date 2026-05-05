@@ -1,0 +1,15 @@
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\bin\Debug\net8.0-windows\DesktopApp.exe
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\bin\Debug\net8.0-windows\DesktopApp.deps.json
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\bin\Debug\net8.0-windows\DesktopApp.runtimeconfig.json
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\bin\Debug\net8.0-windows\DesktopApp.dll
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\bin\Debug\net8.0-windows\DesktopApp.pdb
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\obj\Debug\net8.0-windows\DesktopApp.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\obj\Debug\net8.0-windows\DesktopApp.AssemblyInfoInputs.cache
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\obj\Debug\net8.0-windows\DesktopApp.AssemblyInfo.cs
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\obj\Debug\net8.0-windows\DesktopApp.csproj.CoreCompileInputs.cache
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\obj\Debug\net8.0-windows\DesktopApp.sourcelink.json
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\obj\Debug\net8.0-windows\DesktopApp.dll
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\obj\Debug\net8.0-windows\refint\DesktopApp.dll
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\obj\Debug\net8.0-windows\DesktopApp.pdb
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\obj\Debug\net8.0-windows\DesktopApp.genruntimeconfig.cache
+C:\Users\Bora\Desktop\InventoryOrderSPRING2025-26\DesktopApp\obj\Debug\net8.0-windows\ref\DesktopApp.dll

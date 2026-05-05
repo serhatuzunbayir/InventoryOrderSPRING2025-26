@@ -21,6 +21,14 @@ public partial class MainForm : Form
     {
         // Configure UI bindings and event handlers for the staff console.
         InitializeComponent();
+        
+        itemsGrid.AllowUserToAddRows = false;
+        ordersGrid.AllowUserToAddRows = false;
+        orderItemsGrid.AllowUserToAddRows = false;
+        
+        this.Load += (_, _) => ResizeGrids();
+        this.Resize += (_, _) => ResizeGrids();
+        
         _apiClient = apiClient;
 
         lblLoggedIn.Text = $"Staff: {staffUsername}";
@@ -29,6 +37,19 @@ public partial class MainForm : Form
         itemsGrid.AutoGenerateColumns = true;
         ordersGrid.AutoGenerateColumns = true;
         orderItemsGrid.AutoGenerateColumns = true;
+        
+        ordersGrid.DataBindingComplete += (_, _) =>
+        {
+            ordersGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        };
+
+        orderItemsGrid.DataBindingComplete += (_, _) =>
+        {
+            orderItemsGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            
+            if (orderItemsGrid.Columns["Id"] != null)
+                orderItemsGrid.Columns["Id"].Visible = false;
+        };
 
         itemsGrid.DataSource = _itemBinding;
         ordersGrid.DataSource = _orderBinding;
@@ -356,5 +377,13 @@ public partial class MainForm : Form
         {
             lstTopItems.Items.Add($"{item.ItemName} - {item.TotalQuantitySold} sold");
         }
+    }
+    
+    private void ResizeGrids()
+    {
+        int rightLimit = btnRefreshOrders.Left - 12; 
+
+        ordersGrid.Width = rightLimit - ordersGrid.Left;
+        orderItemsGrid.Width = rightLimit - orderItemsGrid.Left;
     }
 }
