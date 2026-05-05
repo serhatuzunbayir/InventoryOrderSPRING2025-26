@@ -34,6 +34,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ReportsService>();
 
 var app = builder.Build();
 

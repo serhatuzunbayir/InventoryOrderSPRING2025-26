@@ -81,6 +81,12 @@ public class ApiClient
         return await PutAsync<UpdateOrderStatusRequest, OrderDto>($"/api/orders/{id}/status", request);
     }
 
+    // Fetch the sales report.
+    public async Task<ApiResult<SalesReportDto>> GetSalesReportAsync()
+    {
+        return await GetAsync<SalesReportDto>("/api/reports/sales");
+    }
+
     // Build a GET request and send it through the shared pipeline.
     private async Task<ApiResult<TResponse>> GetAsync<TResponse>(string path)
     {

@@ -228,12 +228,12 @@ partial class MainForm
         lblReportsPlaceholder.Location = new Point(16, 20);
         lblReportsPlaceholder.Text = "Reports will be available in a future update.";
 
-        btnGenerateSales.Location = new Point(16, 56);
+        btnGenerateSales.Location = new Point(16, 240);
         btnGenerateSales.Size = new Size(180, 28);
         btnGenerateSales.Text = "Generate Sales Report";
         btnGenerateSales.Enabled = false;
 
-        btnGenerateInventory.Location = new Point(16, 96);
+        btnGenerateInventory.Location = new Point(16, 280);
         btnGenerateInventory.Size = new Size(180, 28);
         btnGenerateInventory.Text = "Generate Inventory Report";
         btnGenerateInventory.Enabled = false;

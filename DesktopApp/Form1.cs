@@ -12,6 +12,11 @@ public partial class MainForm : Form
     private readonly BindingSource _orderItemsBinding = new();
     private readonly Dictionary<(DataGridView Grid, string Column), ListSortDirection> _sortStates = new();
 
+    // Reports controls
+    private Label lblTotalRevenue;
+    private Label lblTotalOrders;
+    private ListBox lstTopItems;
+
     public MainForm(ApiClient apiClient, string staffUsername)
     {
         // Configure UI bindings and event handlers for the staff console.
@@ -57,6 +62,22 @@ public partial class MainForm : Form
             await LoadItemsAsync();
             await LoadOrdersAsync();
         };
+
+        // Initialize reports controls
+        lblReportsPlaceholder.Visible = false;
+        lblTotalRevenue = new Label { Text = "Total Revenue: ", Location = new Point(16, 20), AutoSize = true };
+        lblTotalOrders = new Label { Text = "Total Orders: ", Location = new Point(16, 50), AutoSize = true };
+        var lblTopItems = new Label { Text = "Top Selling Items:", Location = new Point(16, 80), AutoSize = true };
+        lstTopItems = new ListBox { Location = new Point(16, 100), Size = new Size(300, 120) };
+
+        tabReports.Controls.Add(lblTotalRevenue);
+        tabReports.Controls.Add(lblTotalOrders);
+        tabReports.Controls.Add(lblTopItems);
+        tabReports.Controls.Add(lstTopItems);
+
+        // Enable and wire reports button
+        btnGenerateSales.Enabled = true;
+        btnGenerateSales.Click += async (_, _) => await GenerateSalesReportAsync();
     }
 
     // Fetch items from the API and bind them to the inventory grid.
@@ -304,9 +325,36 @@ public partial class MainForm : Form
                 : SortOrder.Descending;
         }
     }
-    
+
     private static void ShowError(string title, string error)
     {
         MessageBox.Show(error, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+
+    // Generate and display the sales report.
+    private async Task GenerateSalesReportAsync()
+    {
+        var result = await _apiClient.GetSalesReportAsync();
+        if (!result.Success)
+        {
+            ShowError("Failed to generate sales report.", result.Error);
+            return;
+        }
+
+        var report = result.Data;
+        if (report == null)
+        {
+            MessageBox.Show("No report data received.", "Report Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        lblTotalRevenue.Text = $"Total Revenue: ${report.TotalRevenue:F2}";
+        lblTotalOrders.Text = $"Total Orders: {report.TotalOrders}";
+
+        lstTopItems.Items.Clear();
+        foreach (var item in report.TopSellingItems)
+        {
+            lstTopItems.Items.Add($"{item.ItemName} - {item.TotalQuantitySold} sold");
+        }
     }
 }
