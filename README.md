@@ -18,10 +18,10 @@ The system's functionality is divided based on user roles: **Anonymous Users**, 
 - [ ] **Tracking:** A dedicated tracking page allows customers to monitor the current shipping stage of their orders.
 
 ### 💼 Staff Features (Desktop Application)
-- [ ] **Inventory Management:** Staff can add, remove, and update item details, including pricing.
-- [ ] **Stock Control:** Access to exact numerical stock levels for all items in the database.
-- [ ] **Shipping Management:** Supports a hybrid update system (both automatic updates and manual overrides).
-- [ ] **Reporting:** Generation of statistical reports (sales trends, inventory records) for administrative review.
+- **Inventory Management:** Staff can add, remove, and update item details, including pricing.
+- **Stock Control:** Access to exact numerical stock levels for all items in the database.
+- **Shipping Management:** Supports a hybrid update system (both automatic updates and manual overrides).
+- **Reporting:** Generation of statistical reports (sales trends, inventory records) for administrative review.
 
 ---
 
@@ -45,3 +45,6 @@ The project is divided into three distinct components to ensure modularity:
 ### 🛡 Reliability & Data Integrity
 * **Automated Backups:** The system performs a full backup of the SQLite database daily at **12:00 AM**.
 * **Concurrency Control:** To prevent over-selling, stock levels are decremented immediately and atomically upon successful order placement.
+
+## V1.0 Video link
+* https://youtu.be/k7gEKmvEww8
