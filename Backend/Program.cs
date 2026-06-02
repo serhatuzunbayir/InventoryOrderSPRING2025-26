@@ -7,16 +7,19 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Read SQLite database connection string from configuration
 var connectionString = builder.Configuration.GetConnectionString("Default")!;
 if (connectionString.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase))
 {
     var pathPart = connectionString["Data Source=".Length..].Trim();
+    // Resolve relative database file paths dynamically for cross-computer portability
     if (!Path.IsPathRooted(pathPart))
     {
         var baseDir = AppDomain.CurrentDomain.BaseDirectory;
         var resolvedPath = Path.Combine(baseDir, pathPart);
         
         var searchDir = baseDir;
+        // Search parent directories up to 5 levels to locate inventory.db file
         for (int i = 0; i < 5; i++)
         {
             var candidate = Path.Combine(searchDir, pathPart);
