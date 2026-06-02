@@ -7,7 +7,7 @@ partial class MainForm
     private TabControl tabMain;
     private TabPage tabInventory;
     private TabPage tabOrders;
-    private TabPage tabReports;
+    private System.Windows.Forms.TabPage tabReports;
     private System.Windows.Forms.TabPage tabOptions;
 
     private DataGridView itemsGrid;
@@ -36,9 +36,16 @@ partial class MainForm
     private Label lblOrderItems;
     private Label lblOrderStatus;
 
-    private Label lblReportsPlaceholder;
-    private Button btnGenerateSales;
+    private System.Windows.Forms.Button btnGenerateSales;
     private Button btnGenerateInventory;
+    private Label lblTotalRevenue;
+    private Label lblTotalOrders;
+    private Label lblTopItems;
+    private ListBox lstTopItems;
+    private Label lblTrendItems;
+    private ComboBox cmbTrendItems;
+    private Label lblTrendChartTitle;
+    private PictureBox picWeeklyTrend;
 
     private Label lblLowStockThreshold;
     private NumericUpDown numLowStockThreshold;
@@ -96,7 +103,14 @@ partial class MainForm
         cmbOrderStatus = new System.Windows.Forms.ComboBox();
         btnUpdateStatus = new System.Windows.Forms.Button();
         tabReports = new System.Windows.Forms.TabPage();
-        lblReportsPlaceholder = new System.Windows.Forms.Label();
+        picWeeklyTrend = new System.Windows.Forms.PictureBox();
+        lblTrendChartTitle = new System.Windows.Forms.Label();
+        cmbTrendItems = new System.Windows.Forms.ComboBox();
+        lblTrendItems = new System.Windows.Forms.Label();
+        lstTopItems = new System.Windows.Forms.ListBox();
+        lblTopItems = new System.Windows.Forms.Label();
+        lblTotalOrders = new System.Windows.Forms.Label();
+        lblTotalRevenue = new System.Windows.Forms.Label();
         btnGenerateSales = new System.Windows.Forms.Button();
         btnGenerateInventory = new System.Windows.Forms.Button();
         tabOptions = new System.Windows.Forms.TabPage();
@@ -121,6 +135,7 @@ partial class MainForm
         ((System.ComponentModel.ISupportInitialize)ordersGrid).BeginInit();
         ((System.ComponentModel.ISupportInitialize)orderItemsGrid).BeginInit();
         tabReports.SuspendLayout();
+        ((System.ComponentModel.ISupportInitialize)picWeeklyTrend).BeginInit();
         tabOptions.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)numLowStockThreshold).BeginInit();
         ((System.ComponentModel.ISupportInitialize)numPollingRate).BeginInit();
@@ -159,7 +174,7 @@ partial class MainForm
         lblItemSearch.AutoSize = true;
         lblItemSearch.Location = new System.Drawing.Point(12, 16);
         lblItemSearch.Name = "lblItemSearch";
-        lblItemSearch.Size = new System.Drawing.Size(72, 15);
+        lblItemSearch.Size = new System.Drawing.Size(74, 15);
         lblItemSearch.TabIndex = 0;
         lblItemSearch.Text = "Search items";
         // 
@@ -264,7 +279,7 @@ partial class MainForm
         lblItemPrice.AutoSize = true;
         lblItemPrice.Location = new System.Drawing.Point(16, 152);
         lblItemPrice.Name = "lblItemPrice";
-        lblItemPrice.Size = new System.Drawing.Size(33, 15);
+        lblItemPrice.Size = new System.Drawing.Size(50, 15);
         lblItemPrice.TabIndex = 6;
         lblItemPrice.Text = "Price ($)";
         // 
@@ -395,7 +410,14 @@ partial class MainForm
         // 
         // tabReports
         // 
-        tabReports.Controls.Add(lblReportsPlaceholder);
+        tabReports.Controls.Add(picWeeklyTrend);
+        tabReports.Controls.Add(lblTrendChartTitle);
+        tabReports.Controls.Add(cmbTrendItems);
+        tabReports.Controls.Add(lblTrendItems);
+        tabReports.Controls.Add(lstTopItems);
+        tabReports.Controls.Add(lblTopItems);
+        tabReports.Controls.Add(lblTotalOrders);
+        tabReports.Controls.Add(lblTotalRevenue);
         tabReports.Controls.Add(btnGenerateSales);
         tabReports.Controls.Add(btnGenerateInventory);
         tabReports.Location = new System.Drawing.Point(4, 24);
@@ -405,30 +427,94 @@ partial class MainForm
         tabReports.Text = "Reports";
         tabReports.UseVisualStyleBackColor = true;
         // 
-        // lblReportsPlaceholder
+        // picWeeklyTrend
         // 
-        lblReportsPlaceholder.AutoSize = true;
-        lblReportsPlaceholder.Location = new System.Drawing.Point(16, 20);
-        lblReportsPlaceholder.Name = "lblReportsPlaceholder";
-        lblReportsPlaceholder.Size = new System.Drawing.Size(233, 15);
-        lblReportsPlaceholder.TabIndex = 0;
-        lblReportsPlaceholder.Text = "Reports will be available in a future update.";
+        picWeeklyTrend.BackColor = System.Drawing.Color.White;
+        picWeeklyTrend.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+        picWeeklyTrend.Location = new System.Drawing.Point(340, 140);
+        picWeeklyTrend.Name = "picWeeklyTrend";
+        picWeeklyTrend.Size = new System.Drawing.Size(560, 230);
+        picWeeklyTrend.TabIndex = 10;
+        picWeeklyTrend.TabStop = false;
+        // 
+        // lblTrendChartTitle
+        // 
+        lblTrendChartTitle.AutoSize = true;
+        lblTrendChartTitle.Location = new System.Drawing.Point(340, 116);
+        lblTrendChartTitle.Name = "lblTrendChartTitle";
+        lblTrendChartTitle.Size = new System.Drawing.Size(165, 15);
+        lblTrendChartTitle.TabIndex = 9;
+        lblTrendChartTitle.Text = "Weekly trend will appear here.";
+        // 
+        // cmbTrendItems
+        // 
+        cmbTrendItems.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
+        cmbTrendItems.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.ListItems;
+        cmbTrendItems.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDown;
+        cmbTrendItems.FormattingEnabled = true;
+        cmbTrendItems.Location = new System.Drawing.Point(340, 84);
+        cmbTrendItems.Name = "cmbTrendItems";
+        cmbTrendItems.Size = new System.Drawing.Size(250, 23);
+        cmbTrendItems.TabIndex = 8;
+        // 
+        // lblTrendItems
+        // 
+        lblTrendItems.AutoSize = true;
+        lblTrendItems.Location = new System.Drawing.Point(340, 60);
+        lblTrendItems.Name = "lblTrendItems";
+        lblTrendItems.Size = new System.Drawing.Size(65, 15);
+        lblTrendItems.TabIndex = 7;
+        lblTrendItems.Text = "Select Item";
+        // 
+        // lstTopItems
+        // 
+        lstTopItems.FormattingEnabled = true;
+        lstTopItems.ItemHeight = 15;
+        lstTopItems.Location = new System.Drawing.Point(16, 100);
+        lstTopItems.Name = "lstTopItems";
+        lstTopItems.Size = new System.Drawing.Size(300, 124);
+        lstTopItems.TabIndex = 6;
+        // 
+        // lblTopItems
+        // 
+        lblTopItems.AutoSize = true;
+        lblTopItems.Location = new System.Drawing.Point(16, 80);
+        lblTopItems.Name = "lblTopItems";
+        lblTopItems.Size = new System.Drawing.Size(100, 15);
+        lblTopItems.TabIndex = 5;
+        lblTopItems.Text = "Top Selling Items:";
+        // 
+        // lblTotalOrders
+        // 
+        lblTotalOrders.AutoSize = true;
+        lblTotalOrders.Location = new System.Drawing.Point(16, 50);
+        lblTotalOrders.Name = "lblTotalOrders";
+        lblTotalOrders.Size = new System.Drawing.Size(77, 15);
+        lblTotalOrders.TabIndex = 4;
+        lblTotalOrders.Text = "Total Orders: ";
+        // 
+        // lblTotalRevenue
+        // 
+        lblTotalRevenue.AutoSize = true;
+        lblTotalRevenue.Location = new System.Drawing.Point(16, 20);
+        lblTotalRevenue.Name = "lblTotalRevenue";
+        lblTotalRevenue.Size = new System.Drawing.Size(87, 15);
+        lblTotalRevenue.TabIndex = 3;
+        lblTotalRevenue.Text = "Total Revenue: ";
         // 
         // btnGenerateSales
         // 
-        btnGenerateSales.Enabled = false;
-        btnGenerateSales.Location = new System.Drawing.Point(16, 240);
+        btnGenerateSales.Location = new System.Drawing.Point(60, 230);
         btnGenerateSales.Name = "btnGenerateSales";
-        btnGenerateSales.Size = new System.Drawing.Size(180, 28);
+        btnGenerateSales.Size = new System.Drawing.Size(220, 28);
         btnGenerateSales.TabIndex = 1;
         btnGenerateSales.Text = "Total Sales Recorded";
         // 
         // btnGenerateInventory
         // 
-        btnGenerateInventory.Enabled = false;
-        btnGenerateInventory.Location = new System.Drawing.Point(16, 280);
+        btnGenerateInventory.Location = new System.Drawing.Point(340, 20);
         btnGenerateInventory.Name = "btnGenerateInventory";
-        btnGenerateInventory.Size = new System.Drawing.Size(180, 28);
+        btnGenerateInventory.Size = new System.Drawing.Size(220, 28);
         btnGenerateInventory.TabIndex = 2;
         btnGenerateInventory.Text = "Generate Weekly Sale Trends";
         // 
@@ -552,6 +638,7 @@ partial class MainForm
         Text = "Inventory Staff Console";
         tabMain.ResumeLayout(false);
         tabInventory.ResumeLayout(false);
+        tabInventory.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)itemsGrid).EndInit();
         grpItemDetails.ResumeLayout(false);
         grpItemDetails.PerformLayout();
@@ -563,6 +650,7 @@ partial class MainForm
         ((System.ComponentModel.ISupportInitialize)orderItemsGrid).EndInit();
         tabReports.ResumeLayout(false);
         tabReports.PerformLayout();
+        ((System.ComponentModel.ISupportInitialize)picWeeklyTrend).EndInit();
         tabOptions.ResumeLayout(false);
         tabOptions.PerformLayout();
         ((System.ComponentModel.ISupportInitialize)numLowStockThreshold).EndInit();

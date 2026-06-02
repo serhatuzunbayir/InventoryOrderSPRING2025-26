@@ -21,14 +21,6 @@ public partial class MainForm : Form
     private bool _hasManualItemSelection;
     public bool LogoutRequested { get; private set; }
 
-    // Reports controls
-    private Label lblTotalRevenue = null!;
-    private Label lblTotalOrders = null!;
-    private ListBox lstTopItems = null!;
-    private ComboBox cmbTrendItems = null!;
-    private Label lblTrendItems = null!;
-    private Label lblTrendChartTitle = null!;
-    private PictureBox picWeeklyTrend = null!;
     private bool _reportItemsLoaded;
 
     public MainForm(
@@ -132,12 +124,8 @@ public partial class MainForm : Form
             _notificationCoordinator.Dispose();
         };
 
-        InitializeReportControls();
-
         // Enable report actions.
-        btnGenerateSales.Enabled = true;
         btnGenerateSales.Click += async (_, _) => await GenerateSalesReportAsync();
-        btnGenerateInventory.Enabled = true;
         btnGenerateInventory.Click += async (_, _) => await GenerateItemTrendReportAsync();
     }
 
@@ -721,60 +709,6 @@ public partial class MainForm : Form
         }
     }
 
-    // Build the reports tab controls.
-    private void InitializeReportControls()
-    {
-        lblReportsPlaceholder.Visible = false;
-
-        btnGenerateSales.Text = "Total Sales Recorded";
-        btnGenerateSales.Size = new Size(220, 28);
-        btnGenerateSales.Location = new Point(16, 240);
-
-        btnGenerateInventory.Text = "Generate Weekly Sale Trends";
-        btnGenerateInventory.Size = new Size(220, 28);
-        btnGenerateInventory.Location = new Point(340, 20);
-
-        lblTotalRevenue = new Label { Text = "Total Revenue: ", Location = new Point(16, 20), AutoSize = true };
-        lblTotalOrders = new Label { Text = "Total Orders: ", Location = new Point(16, 50), AutoSize = true };
-        var lblTopItems = new Label { Text = "Top Selling Items:", Location = new Point(16, 80), AutoSize = true };
-        lstTopItems = new ListBox { Location = new Point(16, 100), Size = new Size(300, 120) };
-
-        lblTrendItems = new Label { Text = "Select Item", Location = new Point(340, 60), AutoSize = true };
-        cmbTrendItems = new ComboBox
-        {
-            Location = new Point(340, 84),
-            Size = new Size(250, 23),
-            DropDownStyle = ComboBoxStyle.DropDown
-        };
-
-        cmbTrendItems.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-        cmbTrendItems.AutoCompleteSource = AutoCompleteSource.ListItems;
-
-        lblTrendChartTitle = new Label
-        {
-            Text = "Weekly trend will appear here.",
-            Location = new Point(340, 116),
-            AutoSize = true
-        };
-
-        picWeeklyTrend = new PictureBox
-        {
-            Location = new Point(340, 140),
-            Size = new Size(560, 230),
-            BorderStyle = BorderStyle.FixedSingle,
-            BackColor = Color.White
-        };
-
-        tabReports.Controls.Add(lblTotalRevenue);
-        tabReports.Controls.Add(lblTotalOrders);
-        tabReports.Controls.Add(lblTopItems);
-        tabReports.Controls.Add(lstTopItems);
-        tabReports.Controls.Add(lblTrendItems);
-        tabReports.Controls.Add(cmbTrendItems);
-        tabReports.Controls.Add(lblTrendChartTitle);
-        tabReports.Controls.Add(picWeeklyTrend);
-    }
-
     // Refresh the report combo item list.
     private async Task EnsureReportItemsLoadedAsync(bool forceReload = false)
     {
@@ -873,7 +807,7 @@ public partial class MainForm : Form
         return match;
     }
 
-    // Plot the weekly trend points.
+    // Draw the selected item's weekly sales graph.
     private void BindTrendChart(ItemTrendReportDto report)
     {
         var points = report.Points
@@ -900,7 +834,7 @@ public partial class MainForm : Form
         var maxQuantity = Math.Max(1, points.Max(point => point.QuantitySold));
         var plotBottom = topMargin + plotHeight;
 
-        // Draw the main chart axes.
+        // Draw the base axes
         graphics.DrawLine(axisPen, leftMargin, topMargin, leftMargin, plotBottom);
         graphics.DrawLine(axisPen, leftMargin, plotBottom, leftMargin + plotWidth, plotBottom);
 
@@ -926,6 +860,7 @@ public partial class MainForm : Form
                 var yRatio = point.QuantitySold / (float)maxQuantity;
                 var y = plotBottom - (plotHeight * yRatio);
 
+                // Save screen points
                 plottedPoints[index] = new PointF(x, y);
                 graphics.FillEllipse(pointBrush, x - 4, y - 4, 8, 8);
                 graphics.DrawString(point.Day.ToLocalTime().ToString("MMM dd"), Font, labelBrush, x - 18, plotBottom + 6);
@@ -934,10 +869,12 @@ public partial class MainForm : Form
 
             if (plottedPoints.Length > 1)
             {
+                // Connect the daily points
                 graphics.DrawLines(linePen, plottedPoints);
             }
         }
 
+        // Replace graph image
         picWeeklyTrend.Image?.Dispose();
         picWeeklyTrend.Image = bitmap;
         lblTrendChartTitle.Text = $"{report.ItemName} - Last 7 Days";
