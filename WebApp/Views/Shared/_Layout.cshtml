@@ -1,0 +1,93 @@
+@using System.Text.Json
+@using WebApp.Models
+@{
+    var username = Context.Request.Cookies["username"];
+    var isAuthenticated = !string.IsNullOrEmpty(Context.Request.Cookies["jwt_token"]);
+    int cartCount = 0;
+    if (Context.Request.Cookies.TryGetValue("shopping_cart", out var cartJson) && !string.IsNullOrWhiteSpace(cartJson))
+    {
+        try
+        {
+            var cart = JsonSerializer.Deserialize<List<CartItem>>(cartJson);
+            cartCount = cart?.Sum(i => i.Quantity) ?? 0;
+        }
+        catch {}
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Inventory & Order Customer Portal</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header class="main-header">
+        <nav class="nav-container">
+            <a class="nav-logo" asp-controller="Home" asp-action="Index">
+                Inventory &amp; Order Portal
+            </a>
+            
+            <ul class="nav-links">
+                <li><a class="nav-link" asp-controller="Home" asp-action="Index">Browse Catalog</a></li>
+                @if (isAuthenticated)
+                {
+                    <li><a class="nav-link" asp-controller="Orders" asp-action="History">My Orders</a></li>
+                    <li><a class="nav-link" asp-controller="Account" asp-action="Profile">My Profile</a></li>
+                }
+            </ul>
+
+            <div class="user-actions">
+                <a class="nav-link" asp-controller="Orders" asp-action="Cart" style="position: relative; margin-right: 0.5rem; font-weight: bold;">
+                    Shopping Cart
+                    @if (cartCount > 0)
+                    {
+                        <span style="background: #007bff; color: #ffffff; border-radius: 50%; padding: 0.15rem 0.45rem; font-size: 0.75rem; font-weight: bold; margin-left: 0.25rem;">
+                            @cartCount
+                        </span>
+                    }
+                </a>
+
+                @if (isAuthenticated)
+                {
+                    <span style="font-size: 0.9rem; font-weight: 500; color: #495057;">
+                        <strong style="color: #212529;">@username</strong>
+                    </span>
+                    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.85rem;">Logout</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="btn-secondary" asp-controller="Account" asp-action="Login" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">Login</a>
+                    <a class="btn-primary" asp-controller="Account" asp-action="Register" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; box-shadow: none;">Sign Up</a>
+                }
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="custom-alert alert-success">
+                <span>✓</span> @TempData["SuccessMessage"]
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="custom-alert alert-error">
+                <span>⚠️</span> @TempData["ErrorMessage"]
+            </div>
+        }
+
+        @RenderBody()
+    </main>
+
+    <footer class="footer">
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

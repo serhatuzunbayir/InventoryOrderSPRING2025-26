@@ -1,0 +1,120 @@
+@model WebApp.Models.UpdateUserRequest
+@{
+    ViewData["Title"] = "Customer Profile & Addresses";
+    var addresses = ViewBag.Addresses as List<WebApp.Models.AddressDto> ?? [];
+}
+
+<div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+    <div style="flex: 1; min-width: 320px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; backdrop-filter: blur(10px);">
+        <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            Account Details
+        </h2>
+
+        <form asp-controller="Account" asp-action="UpdateProfile" method="post">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" style="color: var(--error); margin-bottom: 1rem; font-size: 0.9rem; list-style: none;"></div>
+
+            <div class="form-row" style="margin-bottom: 1rem;">
+                <div class="form-group">
+                    <label for="FirstName">First Name</label>
+                    <input asp-for="FirstName" class="form-control" required="required" />
+                    <span asp-validation-for="FirstName" style="color: var(--error); font-size: 0.8rem;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="LastName">Last Name</label>
+                    <input asp-for="LastName" class="form-control" required="required" />
+                    <span asp-validation-for="LastName" style="color: var(--error); font-size: 0.8rem;"></span>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 1rem;">
+                <label for="Email">Email Address</label>
+                <input asp-for="Email" type="email" class="form-control" required="required" />
+                <span asp-validation-for="Email" style="color: var(--error); font-size: 0.8rem;"></span>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label for="PhoneNumber">Phone Number</label>
+                <input asp-for="PhoneNumber" type="tel" class="form-control" required="required" />
+                <span asp-validation-for="PhoneNumber" style="color: var(--error); font-size: 0.8rem;"></span>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%;">
+                Save Details
+            </button>
+        </form>
+    </div>
+    
+    <div style="flex: 1.5; min-width: 320px; display: flex; flex-direction: column; gap: 2rem;">
+        
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; backdrop-filter: blur(10px);">
+            <h2 style="font-size: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                Shipping Address Book
+            </h2>
+
+            @if (addresses.Count == 0)
+            {
+                <div style="text-align: center; padding: 2rem; border: 1px dashed var(--border-color); border-radius: 8px; color: var(--text-muted);">
+                    Your address book is empty. Add an address below.
+                </div>
+            }
+            else
+            {
+                <div class="cart-table-wrapper" style="margin-bottom: 0;">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Label</th>
+                                <th>Address Details</th>
+                                <th style="text-align: right; width: 100px;">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var addr in addresses)
+                            {
+                                <tr>
+                                    <td style="font-weight: 600; color: var(--accent-teal);">@addr.AddressName</td>
+                                    <td>@addr.AddressLine</td>
+                                    <td style="text-align: right;">
+                                        <form asp-controller="Account" asp-action="DeleteAddress" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@addr.Id" />
+                                            <button type="submit" class="btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+        
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem; backdrop-filter: blur(10px);">
+            <h3 style="font-size: 1.2rem; margin-bottom: 1rem;">Add New Address</h3>
+            
+            <form asp-controller="Account" asp-action="AddAddress" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="AddressName">Address Label</label>
+                    <input type="text" name="AddressName" id="AddressName" class="form-control" placeholder="e.g. Home, Office, Dorm" required="required" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label for="AddressLine">Street Address / Details</label>
+                    <textarea name="AddressLine" id="AddressLine" rows="3" class="form-control" placeholder="Enter full shipping street address details..." required="required" style="resize: none;"></textarea>
+                </div>
+
+                <button type="submit" class="btn-secondary" style="width: 100%; border-color: var(--accent-teal); color: var(--accent-teal);">
+                    + Add New Address to Book
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>

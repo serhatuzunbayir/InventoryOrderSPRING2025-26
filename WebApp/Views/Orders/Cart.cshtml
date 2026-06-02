@@ -1,0 +1,79 @@
+@model List<WebApp.Models.CartItem>
+@{
+    ViewData["Title"] = "My Shopping Cart";
+    double total = Model.Sum(i => i.Price * i.Quantity);
+}
+
+<h1 style="font-size: 2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+    Shopping Cart
+</h1>
+
+@if (Model.Count == 0)
+{
+    <div style="text-align: center; padding: 5rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color);">
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Your Cart is Empty</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">Looks like you haven't added any products to your shopping cart yet.</p>
+        <a href="@Url.Action("Index", "Home")" class="btn-primary">Browse Catalog</a>
+    </div>
+}
+else
+{
+    <div class="cart-table-wrapper">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Category</th>
+                    <th style="text-align: right;">Unit Price</th>
+                    <th style="text-align: center; width: 120px;">Quantity</th>
+                    <th style="text-align: right; width: 140px;">Subtotal</th>
+                    <th style="text-align: right; width: 80px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    var subtotal = item.Price * item.Quantity;
+                    <tr>
+                        <td style="font-weight: 600; color: var(--text-primary);">@item.Name</td>
+                        <td style="color: var(--text-muted);">@item.Category</td>
+                        <td style="text-align: right;">$@item.Price.ToString("F2")</td>
+                        <td style="text-align: center; font-weight: 600;">@item.Quantity</td>
+                        <td style="text-align: right; font-weight: 700; color: var(--accent-emerald);">$@subtotal.ToString("F2")</td>
+                        <td style="text-align: right;">
+                            <form asp-controller="Orders" asp-action="RemoveFromCart" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="itemId" value="@item.ItemId" />
+                                <button type="submit" class="btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+                                    Remove
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+            <form asp-controller="Orders" asp-action="ClearCart" method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-danger" style="background: rgba(239, 68, 68, 0.05);">
+                    Clear Cart
+                </button>
+            </form>
+            <a href="@Url.Action("Index", "Home")" class="btn-secondary" style="margin-left: 0.5rem;">
+                Continue Shopping
+            </a>
+        </div>
+
+        <div class="cart-summary">
+            <span style="color: var(--text-muted); font-size: 1.1rem; font-weight: 500;">Grand Total:</span>
+            <span class="cart-total" style="color: var(--accent-emerald);">$@total.ToString("F2")</span>
+            <a href="@Url.Action("Checkout", "Orders")" class="btn-primary" style="padding: 0.8rem 2rem;">
+                Proceed to Checkout
+            </a>
+        </div>
+    </div>
+}

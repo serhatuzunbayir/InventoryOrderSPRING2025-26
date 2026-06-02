@@ -1,0 +1,144 @@
+@model WebApp.Models.OrderDto
+@{
+    ViewData["Title"] = "Track Order Details #" + Model.Id;
+    
+    int currentStep = 0;
+    bool isCancelled = Model.Status == "Cancelled";
+    
+    if (Model.Status == "Pending") currentStep = 1;
+    else if (Model.Status == "Processing") currentStep = 2;
+    else if (Model.Status == "Shipped") currentStep = 3;
+    else if (Model.Status == "Delivered") currentStep = 4;
+
+    var orderDateLocal = Model.OrderedDate.ToLocalTime().ToString("f");
+    var totalAmount = Model.OrderItems.Sum(oi => oi.Price * oi.Quantity);
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <a href="@Url.Action("History", "Orders")" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem; margin-bottom: 1rem; display: inline-block;">
+            Back to Order History
+        </a>
+        <h1 style="font-size: 2rem;">Track Delivery Status for Order #@Model.Id</h1>
+        <p style="color: var(--text-muted);">Placed on: <strong style="color: var(--text-primary);">@orderDateLocal</strong></p>
+    </div>
+
+    <div>
+        @if (isCancelled)
+        {
+            <span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 1.1rem; padding: 0.5rem 1rem;">
+                Order Cancelled
+            </span>
+        }
+        else
+        {
+            <span class="badge" style="background: var(--accent-emerald-glow); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); font-size: 1.1rem; padding: 0.5rem 1rem;">
+                Current Stage: @Model.Status
+            </span>
+        }
+    </div>
+</div>
+
+@if (!isCancelled)
+{
+    <div style="background-color: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 1.5rem; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1rem; color: #212529;">Order Milestone Status</h3>
+        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+            <thead>
+                <tr style="border-bottom: 2px solid #dee2e6; background-color: #f8f9fa;">
+                    <th style="padding: 0.75rem;">Milestone Stage</th>
+                    <th style="padding: 0.75rem; text-align: center;">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom: 1px solid #dee2e6;">
+                    <td style="padding: 0.75rem; color: #495057;">Stage 1: Order Placed (Pending Approval)</td>
+                    <td style="padding: 0.75rem; text-align: center; font-weight: bold; color: @(currentStep >= 1 ? (currentStep > 1 ? "#28a745" : "#007bff") : "#6c757d");">
+                        @(currentStep > 1 ? "Completed" : (currentStep == 1 ? "Current Stage" : "Pending"))
+                    </td>
+                </tr>
+                <tr style="border-bottom: 1px solid #dee2e6;">
+                    <td style="padding: 0.75rem; color: #495057;">Stage 2: Processing (Stock Allocated)</td>
+                    <td style="padding: 0.75rem; text-align: center; font-weight: bold; color: @(currentStep >= 2 ? (currentStep > 2 ? "#28a745" : "#007bff") : "#6c757d");">
+                        @(currentStep > 2 ? "Completed" : (currentStep == 2 ? "Current Stage" : "Pending"))
+                    </td>
+                </tr>
+                <tr style="border-bottom: 1px solid #dee2e6;">
+                    <td style="padding: 0.75rem; color: #495057;">Stage 3: Shipped (In Transit)</td>
+                    <td style="padding: 0.75rem; text-align: center; font-weight: bold; color: @(currentStep >= 3 ? (currentStep > 3 ? "#28a745" : "#007bff") : "#6c757d");">
+                        @(currentStep > 3 ? "Completed" : (currentStep == 3 ? "Current Stage" : "Pending"))
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 0.75rem; color: #495057;">Stage 4: Delivered (Received Successfully)</td>
+                    <td style="padding: 0.75rem; text-align: center; font-weight: bold; color: @(currentStep >= 4 ? "#28a745" : "#6c757d");">
+                        @(currentStep == 4 ? "Delivered" : "Pending")
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 2rem; text-align: center; margin-bottom: 2rem; color: #f87171;">
+        <h3 style="font-size: 1.25rem; font-family: var(--font-family-title); margin-bottom: 0.5rem; color: #f87171;">Cancellation Information</h3>
+        <p>This order has been cancelled by the systems administration. Re-allocation has restored the inventory levels atomically.</p>
+    </div>
+}
+
+<div style="display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 2rem;">
+    
+    <div style="flex: 1.5; min-width: 320px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem;">
+        <h2 style="font-size: 1.25rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.75rem;">
+            Items in this Order
+        </h2>
+
+        <div class="cart-table-wrapper" style="margin-bottom: 0;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item Description</th>
+                        <th style="text-align: right;">Unit Price</th>
+                        <th style="text-align: center; width: 100px;">Qty</th>
+                        <th style="text-align: right; width: 120px;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        var subtotal = item.Price * item.Quantity;
+                        <tr>
+                            <td>
+                                <strong style="color: var(--text-primary);">@(item.Item?.Name ?? "Item #" + item.ItemId)</strong>
+                                <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 0.15rem;">Category: @(item.Item?.Category ?? "N/A")</p>
+                            </td>
+                            <td style="text-align: right;">$@item.Price.ToString("F2")</td>
+                            <td style="text-align: center;">@item.Quantity</td>
+                            <td style="text-align: right; font-weight: 700; color: var(--accent-emerald);">$@subtotal.ToString("F2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 2rem;">
+            <h2 style="font-size: 1.25rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem;">
+                Payment Summary
+            </h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; font-size: 0.95rem;">
+                <span style="color: var(--text-muted);">Payment Method:</span>
+                <span style="font-weight: 600; color: var(--text-primary);">Cash on Delivery</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; border-top: 1px dashed var(--border-color); padding-top: 1rem;">
+                <span style="color: var(--text-muted); font-weight: 500;">Grand Total:</span>
+                <span style="font-size: 1.5rem; color: var(--accent-emerald); font-weight: 800; font-family: var(--font-family-title);">$@totalAmount.ToString("F2")</span>
+            </div>
+        </div>
+
+    </div>
+
+</div>

@@ -7,9 +7,34 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// SQLite database connection
+var connectionString = builder.Configuration.GetConnectionString("Default")!;
+if (connectionString.StartsWith("Data Source=", StringComparison.OrdinalIgnoreCase))
+{
+    var pathPart = connectionString["Data Source=".Length..].Trim();
+    if (!Path.IsPathRooted(pathPart))
+    {
+        var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        var resolvedPath = Path.Combine(baseDir, pathPart);
+        
+        var searchDir = baseDir;
+        for (int i = 0; i < 5; i++)
+        {
+            var candidate = Path.Combine(searchDir, pathPart);
+            if (File.Exists(candidate))
+            {
+                resolvedPath = candidate;
+                break;
+            }
+            var parent = Directory.GetParent(searchDir);
+            if (parent == null) break;
+            searchDir = parent.FullName;
+        }
+        connectionString = $"Data Source={resolvedPath}";
+    }
+}
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+    options.UseSqlite(connectionString));
 
 // JWT authentication
 var jwtKey = builder.Configuration["Jwt:Key"]!;

@@ -1,0 +1,88 @@
+@model List<WebApp.Models.OrderDto>
+@{
+    ViewData["Title"] = "My Order History";
+}
+
+<h1 style="font-size: 2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 0.5rem;">
+    My Order History
+</h1>
+
+@if (Model.Count == 0)
+{
+    <div style="text-align: center; padding: 5rem; background: var(--bg-card); border-radius: 16px; border: 1px solid var(--border-color);">
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No Orders Placed Yet</h2>
+        <p style="color: var(--text-muted); margin-bottom: 2rem;">You haven't placed any orders with this customer account yet.</p>
+        <a href="@Url.Action("Index", "Home")" class="btn-primary">Start Shopping Now</a>
+    </div>
+}
+else
+{
+    <div class="cart-table-wrapper">
+        <table class="table" style="vertical-align: middle;">
+            <thead>
+                <tr>
+                    <th style="width: 100px;">Order ID</th>
+                    <th style="width: 180px;">Ordered Date</th>
+                    <th>Items Details</th>
+                    <th style="text-align: right; width: 140px;">Grand Total</th>
+                    <th style="text-align: center; width: 130px;">Status</th>
+                    <th style="text-align: right; width: 140px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    double totalSum = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
+                    var orderedStr = order.OrderedDate.ToLocalTime().ToString("g");
+                    <tr>
+                        <td style="font-weight: 700; font-family: var(--font-family-title); color: var(--accent-teal);">
+                            #@order.Id
+                        </td>
+                        <td style="color: var(--text-muted); font-size: 0.9rem;">
+                            @orderedStr
+                        </td>
+                        <td style="line-height: 1.4;">
+                            @foreach (var item in order.OrderItems)
+                            {
+                                <div style="font-size: 0.9rem; margin-bottom: 0.25rem;">
+                                    <strong style="color: var(--text-primary);">@(item.Item?.Name ?? "Item #" + item.ItemId)</strong>
+                                    <span style="color: var(--text-muted);"> &times; @item.Quantity</span>
+                                </div>
+                            }
+                        </td>
+                        <td style="text-align: right; font-weight: 700; font-family: var(--font-family-title); color: var(--text-primary); font-size: 1.05rem;">
+                            $@totalSum.ToString("F2")
+                        </td>
+                        <td style="text-align: center;">
+                            @if (order.Status == "Pending")
+                            {
+                                <span class="badge" style="background: rgba(245, 158, 11, 0.1); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.2);">Pending</span>
+                            }
+                            else if (order.Status == "Processing")
+                            {
+                                <span class="badge" style="background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2);">Processing</span>
+                            }
+                            else if (order.Status == "Shipped")
+                            {
+                                <span class="badge" style="background: rgba(20, 184, 166, 0.1); color: #2dd4bf; border: 1px solid rgba(20, 184, 166, 0.2);">Shipped</span>
+                            }
+                            else if (order.Status == "Delivered")
+                            {
+                                <span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2);">Delivered</span>
+                            }
+                            else
+                            {
+                                <span class="badge" style="background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2);">Cancelled</span>
+                            }
+                        </td>
+                        <td style="text-align: right;">
+                            <a href="@Url.Action("Track", "Orders", new { id = order.Id })" class="btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.25rem;">
+                                Track Status
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

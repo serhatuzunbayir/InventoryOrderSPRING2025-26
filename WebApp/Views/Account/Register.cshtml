@@ -1,0 +1,66 @@
+@model WebApp.Models.RegisterRequest
+@{
+    ViewData["Title"] = "Customer Registration";
+}
+
+<div class="auth-container" style="max-width: 550px;">
+    <div class="auth-header">
+        <h2>Create Customer Account</h2>
+    </div>
+
+    <form asp-controller="Account" asp-action="Register" method="post">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" style="color: var(--error); margin-bottom: 1rem; font-size: 0.9rem; list-style: none;"></div>
+
+        <div class="form-row" style="margin-bottom: 1.25rem;">
+            <div class="form-group">
+                <label for="FirstName">First Name</label>
+                <input asp-for="FirstName" class="form-control" placeholder="John" required="required" />
+                <span asp-validation-for="FirstName" style="color: var(--error); font-size: 0.8rem;"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="LastName">Last Name</label>
+                <input asp-for="LastName" class="form-control" placeholder="Doe" required="required" />
+                <span asp-validation-for="LastName" style="color: var(--error); font-size: 0.8rem;"></span>
+            </div>
+        </div>
+
+        <div class="form-row" style="margin-bottom: 1.25rem;">
+            <div class="form-group">
+                <label for="Username">Username</label>
+                <input asp-for="Username" class="form-control" placeholder="johndoe12" required="required" />
+                <span asp-validation-for="Username" style="color: var(--error); font-size: 0.8rem;"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="Password">Password</label>
+                <input asp-for="Password" type="password" class="form-control" placeholder="Create password..." required="required" />
+                <span asp-validation-for="Password" style="color: var(--error); font-size: 0.8rem;"></span>
+            </div>
+        </div>
+
+        <div class="form-row" style="margin-bottom: 2rem;">
+            <div class="form-group" style="flex: 2;">
+                <label for="Email">Email Address</label>
+                <input asp-for="Email" type="email" class="form-control" placeholder="john@example.com" required="required" />
+                <span asp-validation-for="Email" style="color: var(--error); font-size: 0.8rem;"></span>
+            </div>
+            
+            <div class="form-group">
+                <label for="PhoneNumber">Phone Number</label>
+                <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="555-0199" required="required" />
+                <span asp-validation-for="PhoneNumber" style="color: var(--error); font-size: 0.8rem;"></span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-primary" style="width: 100%; padding: 0.8rem;">
+            Register Account
+        </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">
+        Already have a customer account? <a asp-controller="Account" asp-action="Login" style="color: var(--accent-emerald); text-decoration: none; font-weight: 600;">Log In</a>
+    </div>
+</div>

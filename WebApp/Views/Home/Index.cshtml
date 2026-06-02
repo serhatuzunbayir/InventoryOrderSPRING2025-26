@@ -1,0 +1,123 @@
+@model WebApp.Models.CatalogViewModel
+@{
+    ViewData["Title"] = "Catalog Product Browsing";
+}
+
+<div class="catalog-header">
+    <div>
+        <h1 style="font-size: 2rem; margin-bottom: 1.5rem;">Explore Our Inventory</h1>
+    </div>
+</div>
+
+
+<div class="search-filter-panel">
+    <form asp-controller="Home" asp-action="Index" method="get">
+        <div class="form-row">
+            <div class="form-group" style="flex: 2;">
+                <label for="name">Search Name</label>
+                <input type="text" name="name" id="name" class="form-control" placeholder="Search by partial item name..." value="@Model.Name" />
+            </div>
+            
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select name="category" id="category" class="form-control">
+                    <option value="">All Categories</option>
+                    @foreach (var cat in Model.Categories)
+                    {
+                        if (Model.Category == cat)
+                        {
+                            <option value="@cat" selected="selected">@cat</option>
+                        }
+                        else
+                        {
+                            <option value="@cat">@cat</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="sortByPrice">Sort by Price</label>
+                <select name="sortByPrice" id="sortByPrice" class="form-control">
+                    <option value="">Default sorting</option>
+                    @if (Model.SortByPrice == "asc")
+                    {
+                        <option value="asc" selected="selected">Price: Low to High</option>
+                        <option value="desc">Price: High to Low</option>
+                    }
+                    else if (Model.SortByPrice == "desc")
+                    {
+                        <option value="asc">Price: Low to High</option>
+                        <option value="desc" selected="selected">Price: High to Low</option>
+                    }
+                    else
+                    {
+                        <option value="asc">Price: Low to High</option>
+                        <option value="desc">Price: High to Low</option>
+                    }
+                </select>
+            </div>
+
+            <div class="form-group" style="min-width: 150px; justify-content: flex-end; flex-direction: row; gap: 0.5rem; align-items: flex-end;">
+                <button type="submit" class="btn-primary" style="padding: 0.75rem 1.25rem;">Apply Filters</button>
+                <a href="@Url.Action("Index", "Home")" class="btn-secondary" style="padding: 0.75rem 1.25rem; text-align: center;">Reset</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+@if (Model.Items.Count == 0)
+{
+    <div style="text-align: center; padding: 4rem; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-color);">
+        <p style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 1rem;">No items found matching your filters.</p>
+        <a href="@Url.Action("Index", "Home")" class="btn-primary">Clear Filters</a>
+    </div>
+}
+else
+{
+    <div class="product-grid">
+        @foreach (var item in Model.Items)
+        {
+            var isAvailable = item.Quantity > 0;
+            <div class="product-card">
+                <div>
+                    <div class="product-cat">@item.Category</div>
+                    <h3 class="product-title">@item.Name</h3>
+                    
+                    <div class="product-price-stock">
+                        <span class="product-price">$@item.Price.ToString("F2")</span>
+                        
+                        @if (isAvailable)
+                        {
+                            <span class="badge badge-instock">In Stock</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-outofstock">Out of Stock</span>
+                        }
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem;">
+                    @if (isAvailable)
+                    {
+                        <form asp-controller="Orders" asp-action="AddToCart" method="post">
+                            <input type="hidden" name="itemId" value="@item.Id" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" class="btn-primary" style="width: 100%;">
+                                Add to Cart
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <button class="btn-secondary" style="width: 100%; opacity: 0.5; cursor: not-allowed;" disabled="disabled">
+                            Unavailable
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
