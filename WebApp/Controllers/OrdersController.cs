@@ -95,15 +95,23 @@ namespace WebApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult RemoveFromCart(int itemId)
+        public IActionResult RemoveFromCart(int itemId, int quantity = 1)
         {
             var cart = GetCart();
             var item = cart.FirstOrDefault(i => i.ItemId == itemId);
             if (item != null)
             {
-                cart.Remove(item);
+                if (item.Quantity <= quantity)
+                {
+                    cart.Remove(item);
+                    TempData["SuccessMessage"] = $"Removed '{item.Name}' from cart.";
+                }
+                else
+                {
+                    item.Quantity -= quantity;
+                    TempData["SuccessMessage"] = $"Reduced '{item.Name}' quantity by {quantity}.";
+                }
                 SaveCart(cart);
-                TempData["SuccessMessage"] = $"Removed '{item.Name}' from cart.";
             }
             return RedirectToAction(nameof(Cart));
         }

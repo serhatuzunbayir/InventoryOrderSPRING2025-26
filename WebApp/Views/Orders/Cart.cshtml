@@ -27,7 +27,7 @@ else
                     <th style="text-align: right;">Unit Price</th>
                     <th style="text-align: center; width: 120px;">Quantity</th>
                     <th style="text-align: right; width: 140px;">Subtotal</th>
-                    <th style="text-align: right; width: 80px;">Action</th>
+                    <th style="text-align: right; width: 180px;">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -41,10 +41,13 @@ else
                         <td style="text-align: center; font-weight: 600;">@item.Quantity</td>
                         <td style="text-align: right; font-weight: 700; color: var(--accent-emerald);">$@subtotal.ToString("F2")</td>
                         <td style="text-align: right;">
-                            <form asp-controller="Orders" asp-action="RemoveFromCart" method="post" style="display:inline;">
+                            <form asp-controller="Orders" asp-action="RemoveFromCart" method="post" style="display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="itemId" value="@item.ItemId" />
-                                <button type="submit" class="btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;">
+                                <div style="width: 70px;">
+                                    <input type="number" name="quantity" value="1" min="1" max="@item.Quantity" class="form-control" style="width: 100%; text-align: center; padding: 0.25rem; font-size: 0.85rem;" />
+                                </div>
+                                <button type="submit" class="btn-danger" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; white-space: nowrap;">
                                     Remove
                                 </button>
                             </form>
@@ -59,7 +62,7 @@ else
         <div>
             <form asp-controller="Orders" asp-action="ClearCart" method="post" style="display:inline;">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="btn-danger" style="background: rgba(239, 68, 68, 0.05);">
+                <button type="submit" class="btn-danger">
                     Clear Cart
                 </button>
             </form>

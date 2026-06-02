@@ -102,10 +102,12 @@ else
                 <div style="margin-top: 1rem;">
                     @if (isAvailable)
                     {
-                        <form asp-controller="Orders" asp-action="AddToCart" method="post">
+                        <form asp-controller="Orders" asp-action="AddToCart" method="post" style="display: flex; gap: 0.5rem; align-items: center;">
                             <input type="hidden" name="itemId" value="@item.Id" />
-                            <input type="hidden" name="quantity" value="1" />
-                            <button type="submit" class="btn-primary" style="width: 100%;">
+                            <div style="width: 75px; flex-shrink: 0;">
+                                <input type="number" name="quantity" value="1" min="1" max="@item.Quantity" class="form-control" style="width: 100%; text-align: center;" />
+                            </div>
+                            <button type="submit" class="btn-primary" style="flex: 1; text-align: center;">
                                 Add to Cart
                             </button>
                         </form>
