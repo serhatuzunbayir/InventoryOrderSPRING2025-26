@@ -1,3 +1,5 @@
+using DesktopApp.Services;
+
 namespace DesktopApp;
 
 static class Program
@@ -13,7 +15,10 @@ static class Program
         using var login = new LoginForm();
         if (login.ShowDialog() == DialogResult.OK && login.ApiClient != null)
         {
-            Application.Run(new MainForm(login.ApiClient, login.StaffUsername));
+            // Create notification service singleton.
+            var notificationService = new NotificationService();
+            var notificationCoordinator = new NotificationCoordinator(login.ApiClient, notificationService);
+            Application.Run(new MainForm(login.ApiClient, login.StaffUsername, notificationCoordinator));
         }
     }
 }

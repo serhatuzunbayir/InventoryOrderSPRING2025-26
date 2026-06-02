@@ -7,6 +7,7 @@ namespace DesktopApp;
 public partial class MainForm : Form
 {
     private readonly ApiClient _apiClient;
+    private readonly NotificationCoordinator _notificationCoordinator;
     private readonly BindingSource _itemBinding = new();
     private readonly BindingSource _orderBinding = new();
     private readonly BindingSource _orderItemsBinding = new();
@@ -17,19 +18,20 @@ public partial class MainForm : Form
     private Label lblTotalOrders;
     private ListBox lstTopItems;
 
-    public MainForm(ApiClient apiClient, string staffUsername)
+    public MainForm(ApiClient apiClient, string staffUsername, NotificationCoordinator notificationCoordinator)
     {
         // Configure UI bindings and event handlers for the staff console.
         InitializeComponent();
-        
+
         itemsGrid.AllowUserToAddRows = false;
         ordersGrid.AllowUserToAddRows = false;
         orderItemsGrid.AllowUserToAddRows = false;
-        
-        this.Load += (_, _) => ResizeGrids();
-        this.Resize += (_, _) => ResizeGrids();
-        
+
+        Load += (_, _) => ResizeGrids();
+        Resize += (_, _) => ResizeGrids();
+
         _apiClient = apiClient;
+        _notificationCoordinator = notificationCoordinator;
 
         lblLoggedIn.Text = $"Staff: {staffUsername}";
         lblBaseUrl.Text = $"API: {_apiClient.BaseUrl}";
@@ -37,7 +39,7 @@ public partial class MainForm : Form
         itemsGrid.AutoGenerateColumns = true;
         ordersGrid.AutoGenerateColumns = true;
         orderItemsGrid.AutoGenerateColumns = true;
-        
+
         ordersGrid.DataBindingComplete += (_, _) =>
         {
             ordersGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -46,7 +48,7 @@ public partial class MainForm : Form
         orderItemsGrid.DataBindingComplete += (_, _) =>
         {
             orderItemsGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-            
+
             if (orderItemsGrid.Columns["Id"] != null)
                 orderItemsGrid.Columns["Id"].Visible = false;
         };
@@ -62,12 +64,12 @@ public partial class MainForm : Form
         itemsGrid.SelectionChanged += (_, _) => PopulateItemFields();
         ordersGrid.SelectionChanged += (_, _) => PopulateOrderItems();
 
-        btnRefreshItems.Click += async (_, _) => await LoadItemsAsync();
+        btnRefreshItems.Click += async (_, _) => await _notificationCoordinator.RefreshItemsAsync();
         btnAddItem.Click += async (_, _) => await AddItemAsync();
         btnUpdateItem.Click += async (_, _) => await UpdateItemAsync();
         btnDeleteItem.Click += async (_, _) => await DeleteItemAsync();
 
-        btnRefreshOrders.Click += async (_, _) => await LoadOrdersAsync();
+        btnRefreshOrders.Click += async (_, _) => await _notificationCoordinator.RefreshOrdersAsync();
         btnUpdateStatus.Click += async (_, _) => await UpdateOrderStatusAsync();
 
         cmbOrderStatus.Items.AddRange(new object[] { "Pending", "Processing", "Shipped", "Delivered", "Cancelled" });
@@ -78,10 +80,21 @@ public partial class MainForm : Form
         orderItemsGrid.ColumnHeaderMouseClick += (_, e) =>
             SortGrid<OrderItemDto>(orderItemsGrid, _orderItemsBinding, e.ColumnIndex);
 
+        _notificationCoordinator.ItemsUpdated += BindItems;
+        _notificationCoordinator.OrdersUpdated += BindOrders;
+        _notificationCoordinator.RefreshFailed += ShowError;
+
         Load += async (_, _) =>
         {
-            await LoadItemsAsync();
-            await LoadOrdersAsync();
+            // Start notification polling.
+            await _notificationCoordinator.StartAsync();
+        };
+
+        FormClosed += (_, _) =>
+        {
+            // Release notif coordinator resources.
+            _notificationCoordinator.Stop();
+            _notificationCoordinator.Dispose();
         };
 
         // Initialize reports controls
@@ -96,22 +109,15 @@ public partial class MainForm : Form
         tabReports.Controls.Add(lblTopItems);
         tabReports.Controls.Add(lstTopItems);
 
-        // Enable and wire reports button
+        // Enable reports button
         btnGenerateSales.Enabled = true;
         btnGenerateSales.Click += async (_, _) => await GenerateSalesReportAsync();
     }
 
-    // Fetch items from the API and bind them to the inventory grid.
-    private async Task LoadItemsAsync()
+    // Apply refreshed items to the grid.
+    private void BindItems(IReadOnlyList<ItemDto> items)
     {
-        var result = await _apiClient.GetItemsAsync();
-        if (!result.Success)
-        {
-            ShowError("Failed to load items.", result.Error);
-            return;
-        }
-
-        _itemBinding.DataSource = result.Data ?? new List<ItemDto>();
+        _itemBinding.DataSource = items.ToList();
     }
 
     // Populate the item edit fields from the selected inventory row.
@@ -147,7 +153,7 @@ public partial class MainForm : Form
             return;
         }
 
-        await LoadItemsAsync();
+        await _notificationCoordinator.RefreshItemsAsync();
     }
 
     // Update the selected item using the current form inputs.
@@ -171,7 +177,7 @@ public partial class MainForm : Form
             return;
         }
 
-        await LoadItemsAsync();
+        await _notificationCoordinator.RefreshItemsAsync();
     }
 
     // Delete the selected item after user confirmation.
@@ -197,7 +203,7 @@ public partial class MainForm : Form
             return;
         }
 
-        await LoadItemsAsync();
+        await _notificationCoordinator.RefreshItemsAsync();
     }
 
     // Validate and assemble an item request from the form inputs.
@@ -225,17 +231,10 @@ public partial class MainForm : Form
         return true;
     }
 
-    // Fetch orders from the API and bind them to the orders grid.
-    private async Task LoadOrdersAsync()
+    // Apply refreshed orders to the grid.
+    private void BindOrders(IReadOnlyList<OrderDto> orders)
     {
-        var result = await _apiClient.GetOrdersAsync();
-        if (!result.Success)
-        {
-            ShowError("Failed to load orders.", result.Error);
-            return;
-        }
-
-        _orderBinding.DataSource = result.Data ?? new List<OrderDto>();
+        _orderBinding.DataSource = orders.ToList();
         PopulateOrderItems();
     }
 
@@ -278,7 +277,7 @@ public partial class MainForm : Form
             return;
         }
 
-        await LoadOrdersAsync();
+        await _notificationCoordinator.RefreshOrdersAsync();
     }
 
     // Sort the provided grid by the clicked column, toggling direction.
@@ -378,10 +377,10 @@ public partial class MainForm : Form
             lstTopItems.Items.Add($"{item.ItemName} - {item.TotalQuantitySold} sold");
         }
     }
-    
+
     private void ResizeGrids()
     {
-        int rightLimit = btnRefreshOrders.Left - 12; 
+        int rightLimit = btnRefreshOrders.Left - 12;
 
         ordersGrid.Width = rightLimit - ordersGrid.Left;
         orderItemsGrid.Width = rightLimit - orderItemsGrid.Left;
