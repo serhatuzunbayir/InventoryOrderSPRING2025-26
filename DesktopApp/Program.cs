@@ -12,21 +12,32 @@ static class Program
     {
         ApplicationConfiguration.Initialize();
 
-        using var login = new LoginForm();
-        if (login.ShowDialog() == DialogResult.OK && login.ApiClient != null)
+        while (true)
         {
+            using var login = new LoginForm();
+            if (login.ShowDialog() != DialogResult.OK || login.ApiClient == null)
+            {
+                break;
+            }
+
             var optionsService = new AppOptionsService();
             var options = optionsService.Load();
 
             // Create notification service singleton.
             var notificationService = new NotificationService(options.LowStockThreshold);
             var notificationCoordinator = new NotificationCoordinator(login.ApiClient, notificationService, options);
-            Application.Run(new MainForm(
+            using var mainForm = new MainForm(
                 login.ApiClient,
                 login.StaffUsername,
                 notificationCoordinator,
                 optionsService,
-                options));
+                options);
+            Application.Run(mainForm);
+
+            if (!mainForm.LogoutRequested)
+            {
+                break;
+            }
         }
     }
 }

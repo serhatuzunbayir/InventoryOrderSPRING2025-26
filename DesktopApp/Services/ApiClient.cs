@@ -45,10 +45,14 @@ public class ApiClient
         return await PostAsync<RegisterRequest, RegisterResponse>("/api/auth/register", request);
     }
 
-    // Fetch the full inventory list.
-    public async Task<ApiResult<List<ItemDto>>> GetItemsAsync()
+    // Fetch inventory with an optional name filter.
+    public async Task<ApiResult<List<ItemDto>>> GetItemsAsync(string? name = null)
     {
-        return await GetAsync<List<ItemDto>>("/api/items");
+        var path = string.IsNullOrWhiteSpace(name)
+            ? "/api/items"
+            : $"/api/items?name={Uri.EscapeDataString(name)}";
+
+        return await GetAsync<List<ItemDto>>(path);
     }
 
     // Create a new inventory item.
@@ -85,6 +89,12 @@ public class ApiClient
     public async Task<ApiResult<SalesReportDto>> GetSalesReportAsync()
     {
         return await GetAsync<SalesReportDto>("/api/reports/sales");
+    }
+
+    // Fetch a 7-day trend for one item.
+    public async Task<ApiResult<ItemTrendReportDto>> GetItemTrendReportAsync(int itemId)
+    {
+        return await GetAsync<ItemTrendReportDto>($"/api/reports/item-trends/{itemId}");
     }
 
     // Trigger manual backup endpoint.

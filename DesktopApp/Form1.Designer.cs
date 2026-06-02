@@ -11,6 +11,9 @@ partial class MainForm
     private System.Windows.Forms.TabPage tabOptions;
 
     private DataGridView itemsGrid;
+    private Label lblItemSearch;
+    private TextBox txtItemSearch;
+    private Button btnClearItemSearch;
     private GroupBox grpItemDetails;
     private Label lblItemName;
     private TextBox txtItemName;
@@ -43,6 +46,7 @@ partial class MainForm
     private NumericUpDown numPollingRate;
     private System.Windows.Forms.Button btnSaveOptions;
     private System.Windows.Forms.Button btnManualBackup;
+    private System.Windows.Forms.Button btnLogout;
     private System.Windows.Forms.Label lblOptionsInfo;
 
     private StatusStrip statusStrip;
@@ -66,6 +70,9 @@ partial class MainForm
     {
         tabMain = new System.Windows.Forms.TabControl();
         tabInventory = new System.Windows.Forms.TabPage();
+        lblItemSearch = new System.Windows.Forms.Label();
+        txtItemSearch = new System.Windows.Forms.TextBox();
+        btnClearItemSearch = new System.Windows.Forms.Button();
         itemsGrid = new System.Windows.Forms.DataGridView();
         grpItemDetails = new System.Windows.Forms.GroupBox();
         lblItemName = new System.Windows.Forms.Label();
@@ -99,6 +106,7 @@ partial class MainForm
         numPollingRate = new System.Windows.Forms.NumericUpDown();
         btnSaveOptions = new System.Windows.Forms.Button();
         btnManualBackup = new System.Windows.Forms.Button();
+        btnLogout = new System.Windows.Forms.Button();
         lblOptionsInfo = new System.Windows.Forms.Label();
         statusStrip = new System.Windows.Forms.StatusStrip();
         lblLoggedIn = new System.Windows.Forms.ToolStripStatusLabel();
@@ -134,6 +142,9 @@ partial class MainForm
         // 
         // tabInventory
         // 
+        tabInventory.Controls.Add(lblItemSearch);
+        tabInventory.Controls.Add(txtItemSearch);
+        tabInventory.Controls.Add(btnClearItemSearch);
         tabInventory.Controls.Add(itemsGrid);
         tabInventory.Controls.Add(grpItemDetails);
         tabInventory.Location = new System.Drawing.Point(4, 24);
@@ -143,15 +154,40 @@ partial class MainForm
         tabInventory.Text = "Inventory";
         tabInventory.UseVisualStyleBackColor = true;
         // 
+        // lblItemSearch
+        // 
+        lblItemSearch.AutoSize = true;
+        lblItemSearch.Location = new System.Drawing.Point(12, 16);
+        lblItemSearch.Name = "lblItemSearch";
+        lblItemSearch.Size = new System.Drawing.Size(72, 15);
+        lblItemSearch.TabIndex = 0;
+        lblItemSearch.Text = "Search items";
+        // 
+        // txtItemSearch
+        // 
+        txtItemSearch.Location = new System.Drawing.Point(90, 12);
+        txtItemSearch.Name = "txtItemSearch";
+        txtItemSearch.Size = new System.Drawing.Size(180, 23);
+        txtItemSearch.TabIndex = 1;
+        // 
+        // btnClearItemSearch
+        // 
+        btnClearItemSearch.Location = new System.Drawing.Point(276, 10);
+        btnClearItemSearch.Name = "btnClearItemSearch";
+        btnClearItemSearch.Size = new System.Drawing.Size(75, 26);
+        btnClearItemSearch.TabIndex = 2;
+        btnClearItemSearch.Text = "Clear";
+        btnClearItemSearch.UseVisualStyleBackColor = true;
+        // 
         // itemsGrid
         // 
-        itemsGrid.Location = new System.Drawing.Point(12, 12);
+        itemsGrid.Location = new System.Drawing.Point(12, 44);
         itemsGrid.MultiSelect = false;
         itemsGrid.Name = "itemsGrid";
         itemsGrid.ReadOnly = true;
         itemsGrid.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-        itemsGrid.Size = new System.Drawing.Size(620, 360);
-        itemsGrid.TabIndex = 0;
+        itemsGrid.Size = new System.Drawing.Size(620, 328);
+        itemsGrid.TabIndex = 3;
         // 
         // grpItemDetails
         // 
@@ -230,7 +266,7 @@ partial class MainForm
         lblItemPrice.Name = "lblItemPrice";
         lblItemPrice.Size = new System.Drawing.Size(33, 15);
         lblItemPrice.TabIndex = 6;
-        lblItemPrice.Text = "Price";
+        lblItemPrice.Text = "Price ($)";
         // 
         // numItemPrice
         // 
@@ -385,7 +421,7 @@ partial class MainForm
         btnGenerateSales.Name = "btnGenerateSales";
         btnGenerateSales.Size = new System.Drawing.Size(180, 28);
         btnGenerateSales.TabIndex = 1;
-        btnGenerateSales.Text = "Generate Sales Report";
+        btnGenerateSales.Text = "Total Sales Recorded";
         // 
         // btnGenerateInventory
         // 
@@ -394,7 +430,7 @@ partial class MainForm
         btnGenerateInventory.Name = "btnGenerateInventory";
         btnGenerateInventory.Size = new System.Drawing.Size(180, 28);
         btnGenerateInventory.TabIndex = 2;
-        btnGenerateInventory.Text = "Generate Inventory Report";
+        btnGenerateInventory.Text = "Generate Weekly Sale Trends";
         // 
         // tabOptions
         // 
@@ -404,6 +440,7 @@ partial class MainForm
         tabOptions.Controls.Add(numPollingRate);
         tabOptions.Controls.Add(btnSaveOptions);
         tabOptions.Controls.Add(btnManualBackup);
+        tabOptions.Controls.Add(btnLogout);
         tabOptions.Controls.Add(lblOptionsInfo);
         tabOptions.Location = new System.Drawing.Point(4, 24);
         tabOptions.Name = "tabOptions";
@@ -468,13 +505,22 @@ partial class MainForm
         btnManualBackup.Text = "Manual Backup";
         btnManualBackup.UseVisualStyleBackColor = true;
         // 
+        // btnLogout
+        // 
+        btnLogout.Location = new System.Drawing.Point(20, 235);
+        btnLogout.Name = "btnLogout";
+        btnLogout.Size = new System.Drawing.Size(220, 30);
+        btnLogout.TabIndex = 6;
+        btnLogout.Text = "Logout";
+        btnLogout.UseVisualStyleBackColor = true;
+        // 
         // lblOptionsInfo
         // 
         lblOptionsInfo.AutoSize = true;
         lblOptionsInfo.Location = new System.Drawing.Point(20, 195);
         lblOptionsInfo.Name = "lblOptionsInfo";
         lblOptionsInfo.Size = new System.Drawing.Size(113, 15);
-        lblOptionsInfo.TabIndex = 6;
+        lblOptionsInfo.TabIndex = 7;
         lblOptionsInfo.Text = "Manual Save Button";
         // 
         // statusStrip

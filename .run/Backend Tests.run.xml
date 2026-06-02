@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 ﻿<component name="ProjectRunConfigurationManager">
+=======
+<component name="ProjectRunConfigurationManager">
+>>>>>>> Stashed changes
   <configuration default="false" name="Backend Tests" type="ShConfigurationType">
     <option name="SCRIPT_TEXT" value="dotnet test &quot;$PROJECT_DIR$/Backend.Tests/Backend.Tests.csproj&quot;" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
@@ -14,6 +18,7 @@
     <envs />
     <method v="2" />
   </configuration>
+<<<<<<< Updated upstream
   <configuration default="false" name="Backend Tests" type="ShConfigurationType">
     <option name="SCRIPT_TEXT" value="dotnet test &quot;$PROJECT_DIR$/Backend.Tests/Backend.Tests.csproj&quot;" />
     <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
@@ -30,3 +35,6 @@
     <method v="2" />
   </configuration>
 </component>
+=======
+</component>
+>>>>>>> Stashed changes

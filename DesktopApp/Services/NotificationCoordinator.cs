@@ -8,6 +8,8 @@ public class NotificationCoordinator : IDisposable
     private readonly NotificationService _notificationService;
     // Background polling timer.
     private readonly System.Windows.Forms.Timer _notificationTimer = new();
+    // Keep the active item filter.
+    private string? _itemSearchTerm;
     // Prevent overlapping refresh work.
     private bool _isRefreshInProgress;
     private bool _isInitialized;
@@ -31,6 +33,14 @@ public class NotificationCoordinator : IDisposable
     {
         _notificationService.UpdateLowStockThreshold(options.LowStockThreshold);
         _notificationTimer.Interval = Math.Max(5, options.PollingRateSeconds) * 1000;
+    }
+
+    // Store the current item filter.
+    public void SetItemSearchTerm(string? searchTerm)
+    {
+        _itemSearchTerm = string.IsNullOrWhiteSpace(searchTerm)
+            ? null
+            : searchTerm.Trim();
     }
 
     public async Task StartAsync()
@@ -75,14 +85,22 @@ public class NotificationCoordinator : IDisposable
             return;
         }
 
-        var items = await FetchItemsAsync();
+        var items = await FetchDisplayItemsAsync();
         if (items == null)
         {
             return;
         }
 
         ItemsUpdated?.Invoke(items);
-        _notificationService.CheckForLowStock(items);
+
+        var itemsForNotifications = string.IsNullOrWhiteSpace(_itemSearchTerm)
+            ? items
+            : await FetchNotificationItemsAsync();
+
+        if (itemsForNotifications != null)
+        {
+            _notificationService.CheckForLowStock(itemsForNotifications);
+        }
     }
 
     public void Dispose()
@@ -97,7 +115,7 @@ public class NotificationCoordinator : IDisposable
             return true;
         }
 
-        var items = await FetchItemsAsync();
+        var items = await FetchNotificationItemsAsync();
         var orders = await FetchOrdersAsync();
 
         if (items == null || orders == null)
@@ -105,7 +123,13 @@ public class NotificationCoordinator : IDisposable
             return false;
         }
 
-        ItemsUpdated?.Invoke(items);
+        var displayItems = await FetchDisplayItemsAsync(items);
+        if (displayItems == null)
+        {
+            return false;
+        }
+
+        ItemsUpdated?.Invoke(displayItems);
         OrdersUpdated?.Invoke(orders);
         _notificationService.Initialize(orders, items);
         _isInitialized = true;
@@ -124,8 +148,31 @@ public class NotificationCoordinator : IDisposable
         return result.Data ?? [];
     }
 
-    private async Task<List<ItemDto>?> FetchItemsAsync()
+    private async Task<List<ItemDto>?> FetchDisplayItemsAsync(List<ItemDto>? allItems = null)
     {
+        if (string.IsNullOrWhiteSpace(_itemSearchTerm))
+        {
+            return allItems ?? await FetchNotificationItemsAsync();
+        }
+
+        var result = await _apiClient.GetItemsAsync(_itemSearchTerm);
+        if (!result.Success)
+        {
+            RefreshFailed?.Invoke("Failed to load items.", result.Error);
+            return null;
+        }
+
+        return result.Data ?? [];
+    }
+
+    // Load the full item list.
+    private async Task<List<ItemDto>?> FetchNotificationItemsAsync(List<ItemDto>? allItems = null)
+    {
+        if (allItems != null)
+        {
+            return allItems;
+        }
+
         var result = await _apiClient.GetItemsAsync();
         if (!result.Success)
         {
@@ -155,10 +202,16 @@ public class NotificationCoordinator : IDisposable
                 _notificationService.CheckForNewOrders(orders);
             }
 
-            var items = await FetchItemsAsync();
+            var items = await FetchNotificationItemsAsync();
             if (items != null)
             {
-                ItemsUpdated?.Invoke(items);
+                var displayItems = await FetchDisplayItemsAsync(items);
+                if (displayItems == null)
+                {
+                    return;
+                }
+
+                ItemsUpdated?.Invoke(displayItems);
                 _notificationService.CheckForLowStock(items);
             }
         }
