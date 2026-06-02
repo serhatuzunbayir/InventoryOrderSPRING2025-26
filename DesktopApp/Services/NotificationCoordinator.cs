@@ -16,14 +16,21 @@ public class NotificationCoordinator : IDisposable
     public event Action<IReadOnlyList<ItemDto>>? ItemsUpdated;
     public event Action<string, string>? RefreshFailed;
 
-    public NotificationCoordinator(ApiClient apiClient, NotificationService notificationService)
+    public NotificationCoordinator(ApiClient apiClient, NotificationService notificationService, DesktopAppOptions options)
     {
         _apiClient = apiClient;
         _notificationService = notificationService;
 
-        // Poll backend every 15 seconds.
-        _notificationTimer.Interval = 15000;
+        // Apply saved startup settings.
+        ApplyOptions(options);
         _notificationTimer.Tick += async (_, _) => await HandleNotificationTimerTickAsync();
+    }
+
+    // Apply updated runtime settings.
+    public void ApplyOptions(DesktopAppOptions options)
+    {
+        _notificationService.UpdateLowStockThreshold(options.LowStockThreshold);
+        _notificationTimer.Interval = Math.Max(5, options.PollingRateSeconds) * 1000;
     }
 
     public async Task StartAsync()

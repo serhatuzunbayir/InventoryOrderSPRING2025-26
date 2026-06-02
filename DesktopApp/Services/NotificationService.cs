@@ -9,10 +9,9 @@ public delegate void LowStockDetectedHandler(ItemDto item, int threshold);
 
 public class NotificationService
 {
-    private const int LowStockThreshold = 5;
-
     private readonly HashSet<int> _knownOrderIds = [];
     private readonly HashSet<int> _alertedLowStockItemIds = [];
+    private int _lowStockThreshold;
 
     private bool _ordersInitialized;
     private bool _itemsInitialized;
@@ -20,11 +19,18 @@ public class NotificationService
     public event OrderPlacedNotificationHandler? OrderPlaced;
     public event LowStockDetectedHandler? LowStockDetected;
 
-    public NotificationService()
+    public NotificationService(int lowStockThreshold = 5)
     {
+        _lowStockThreshold = Math.Max(1, lowStockThreshold);
+
         // Register default popup handlers.
         OrderPlaced += ShowOrderPlacedNotification;
         LowStockDetected += ShowLowStockNotification;
+    }
+
+    public void UpdateLowStockThreshold(int lowStockThreshold)
+    {
+        _lowStockThreshold = Math.Max(1, lowStockThreshold);
     }
 
     public void Initialize(IEnumerable<OrderDto> orders, IEnumerable<ItemDto> items)
@@ -42,7 +48,7 @@ public class NotificationService
         }
 
         foreach (var itemId in itemList
-                     .Where(item => item.Quantity <= LowStockThreshold)
+                     .Where(item => item.Quantity <= _lowStockThreshold)
                      .Select(item => item.Id))
         {
             _alertedLowStockItemIds.Add(itemId);
@@ -87,16 +93,16 @@ public class NotificationService
             return;
         }
 
-        foreach (var item in itemList.Where(item => item.Quantity <= LowStockThreshold))
+        foreach (var item in itemList.Where(item => item.Quantity <= _lowStockThreshold))
         {
             if (_alertedLowStockItemIds.Add(item.Id))
             {
-                LowStockDetected?.Invoke(item, LowStockThreshold);
+                LowStockDetected?.Invoke(item, _lowStockThreshold);
             }
         }
 
         foreach (var itemId in itemList
-                     .Where(item => item.Quantity > LowStockThreshold)
+                     .Where(item => item.Quantity > _lowStockThreshold)
                      .Select(item => item.Id))
         {
             _alertedLowStockItemIds.Remove(itemId);
@@ -105,7 +111,7 @@ public class NotificationService
 
     private static void ShowOrderPlacedNotification(OrderDto order)
     {
-        //Display Messagebox
+        // Show popup for new orders.
         MessageBox.Show(
             $"New order received.\n\nOrder ID: {order.Id}\nCustomer ID: {order.UserId}\nOrdered: {order.OrderedDate:g}",
             "New Order",
@@ -115,7 +121,7 @@ public class NotificationService
 
     private static void ShowLowStockNotification(ItemDto item, int threshold)
     {
-        //Display Messagebox
+        // Show popup for low stock.
         MessageBox.Show(
             $"Item '{item.Name}' is low on stock.\n\nCurrent quantity: {item.Quantity}\nThreshold: {threshold}",
             "Low Stock Alert",

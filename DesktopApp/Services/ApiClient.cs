@@ -87,6 +87,12 @@ public class ApiClient
         return await GetAsync<SalesReportDto>("/api/reports/sales");
     }
 
+    // Trigger manual backup endpoint.
+    public async Task<ApiResult<BackupResponse>> TriggerManualBackupAsync()
+    {
+        return await PostAsync<BackupResponse>("/api/backup");
+    }
+
     // Build a GET request and send it through the shared pipeline.
     private async Task<ApiResult<TResponse>> GetAsync<TResponse>(string path)
     {
@@ -99,6 +105,13 @@ public class ApiClient
     {
         var content = new StringContent(JsonSerializer.Serialize(request, _jsonOptions), Encoding.UTF8, "application/json");
         using var message = new HttpRequestMessage(HttpMethod.Post, path) { Content = content };
+        return await SendAsync<TResponse>(message);
+    }
+
+    // Build an empty POST request.
+    private async Task<ApiResult<TResponse>> PostAsync<TResponse>(string path)
+    {
+        using var message = new HttpRequestMessage(HttpMethod.Post, path);
         return await SendAsync<TResponse>(message);
     }
 

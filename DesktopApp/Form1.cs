@@ -7,6 +7,7 @@ namespace DesktopApp;
 public partial class MainForm : Form
 {
     private readonly ApiClient _apiClient;
+    private readonly AppOptionsService _optionsService;
     private readonly NotificationCoordinator _notificationCoordinator;
     private readonly BindingSource _itemBinding = new();
     private readonly BindingSource _orderBinding = new();
@@ -18,7 +19,12 @@ public partial class MainForm : Form
     private Label lblTotalOrders;
     private ListBox lstTopItems;
 
-    public MainForm(ApiClient apiClient, string staffUsername, NotificationCoordinator notificationCoordinator)
+    public MainForm(
+        ApiClient apiClient,
+        string staffUsername,
+        NotificationCoordinator notificationCoordinator,
+        AppOptionsService optionsService,
+        DesktopAppOptions appOptions)
     {
         // Configure UI bindings and event handlers for the staff console.
         InitializeComponent();
@@ -31,14 +37,22 @@ public partial class MainForm : Form
         Resize += (_, _) => ResizeGrids();
 
         _apiClient = apiClient;
+        _optionsService = optionsService;
         _notificationCoordinator = notificationCoordinator;
 
         lblLoggedIn.Text = $"Staff: {staffUsername}";
         lblBaseUrl.Text = $"API: {_apiClient.BaseUrl}";
+        numLowStockThreshold.Value = appOptions.LowStockThreshold;
+        numPollingRate.Value = appOptions.PollingRateSeconds;
 
         itemsGrid.AutoGenerateColumns = true;
         ordersGrid.AutoGenerateColumns = true;
         orderItemsGrid.AutoGenerateColumns = true;
+        
+        itemsGrid.DataBindingComplete += (_, _) =>
+        {
+            itemsGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        };
 
         ordersGrid.DataBindingComplete += (_, _) =>
         {
@@ -71,6 +85,8 @@ public partial class MainForm : Form
 
         btnRefreshOrders.Click += async (_, _) => await _notificationCoordinator.RefreshOrdersAsync();
         btnUpdateStatus.Click += async (_, _) => await UpdateOrderStatusAsync();
+        btnSaveOptions.Click += (_, _) => SaveOptions();
+        btnManualBackup.Click += async (_, _) => await TriggerManualBackupAsync();
 
         cmbOrderStatus.Items.AddRange(new object[] { "Pending", "Processing", "Shipped", "Delivered", "Cancelled" });
         cmbOrderStatus.SelectedIndex = 0;
@@ -112,6 +128,50 @@ public partial class MainForm : Form
         // Enable reports button
         btnGenerateSales.Enabled = true;
         btnGenerateSales.Click += async (_, _) => await GenerateSalesReportAsync();
+    }
+
+    // Save current options locally.
+    private void SaveOptions()
+    {
+        var updatedOptions = new DesktopAppOptions
+        {
+            LowStockThreshold = Convert.ToInt32(numLowStockThreshold.Value),
+            PollingRateSeconds = Convert.ToInt32(numPollingRate.Value)
+        };
+
+        try
+        {
+            _optionsService.Save(updatedOptions);
+            _notificationCoordinator.ApplyOptions(updatedOptions);
+
+            MessageBox.Show("Options saved locally.", "Options Saved", MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            ShowError("Failed to save options.", ex.Message);
+        }
+    }
+
+    // Call the backup endpoint placeholder.
+    private async Task TriggerManualBackupAsync()
+    {
+        var result = await _apiClient.TriggerManualBackupAsync();
+        if (result.Success)
+        {
+            var fileName = result.Data?.File ?? "Unknown file";
+            var message = result.Data?.Message ?? "Backup created.";
+
+            MessageBox.Show($"{message}\n\nFile: {fileName}", "Backup Created", MessageBoxButtons.OK,
+                MessageBoxIcon.Information);
+            return;
+        }
+
+        MessageBox.Show(
+            result.Error,
+            "Backup Failed",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error);
     }
 
     // Apply refreshed items to the grid.
