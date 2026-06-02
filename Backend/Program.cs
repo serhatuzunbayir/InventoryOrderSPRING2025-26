@@ -61,6 +61,9 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ReportsService>();
 
+// Daily automatic database backup (every night at 00:00)
+builder.Services.AddHostedService<BackupService>();
+
 var app = builder.Build();
 
 // Create the database automatically on startup
