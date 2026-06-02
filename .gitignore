@@ -1,0 +1,56 @@
+# Build outputs
+**/bin/
+**/obj/
+artifacts/
+publish/
+
+# Test results and coverage
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# JetBrains Rider / ReSharper
+.idea/
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# VS Code
+.vscode/
+
+# Local application configuration
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/secrets.json
+**/launchSettings.json
+
+# Environment files for future web projects
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Frontend dependencies and build outputs
+node_modules/
+dist/
+
+# SQLite runtime sidecar files
+*.db-shm
+*.db-wal
+*.sqlite-shm
+*.sqlite-wal
+
+# OS and editor noise
+Thumbs.db
+.DS_Store
+*.tmp
+*.temp
