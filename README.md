@@ -48,3 +48,6 @@ The project is divided into three distinct components to ensure modularity:
 
 ## V1.0 Video link
 * https://youtu.be/k7gEKmvEww8
+
+## V2.0 Video link
+* https://www.youtube.com/watch?v=E_tWd281OXA
